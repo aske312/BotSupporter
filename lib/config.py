@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import psycopg2
+from psycopg2 import extras
+# from itertools import *
 from configparser import ConfigParser
 
 
@@ -52,16 +54,21 @@ class SqlDataBase:
         conn = None
         try:
             conn = psycopg2.connect(**self.base)
-            cur = conn.cursor()
+            cur = conn.cursor(cursor_factory=extras.DictCursor)
             cur.execute(execute)
             conn.commit()
-            source = cur.fetchall()
-            if source != 'no results to fetch':
-                return source
+            sources = cur.fetchall()
+            arg = []
+            for source in sources:
+                if source != 'no results to fetch':
+                    arg.append(dict(source))
             cur.close()
+            return arg
         except (Exception, psycopg2.DatabaseError) as error:
             print(f'WARN: {error}')
         finally:
             if conn is not None:
                 conn.close()
                 print('Database connection closed.')
+
+
