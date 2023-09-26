@@ -18,7 +18,6 @@ class ScraperNews:
 
     def _parser_url(self, url):
         s = requests.Session()
-        print('REQUEST')
         response = s.get(url=url, headers=self.headers)
         if response.ok:
             html_raw = bs(response.text, 'lxml')
