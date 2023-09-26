@@ -18,6 +18,7 @@ class ScraperNews:
 
     def _parser_url(self, url):
         s = requests.Session()
+        print('REQUEST')
         response = s.get(url=url, headers=self.headers)
         if response.ok:
             html_raw = bs(response.text, 'lxml')
@@ -27,7 +28,8 @@ class ScraperNews:
 
     def kp_ru(self, url):
         news_pool = {}
-        pool_html = self._parser_url(url).find_all('div', class_='sc-1tputnk-0 bbyOTY')
+        raw_html = self._parser_url(url)
+        pool_html = raw_html.find_all('div', class_='sc-1tputnk-0 bbyOTY')
         news = pool_html[0].find_all('a', class_='sc-1tputnk-2 drlShK')
         news_pool['href'] = url + news[0]['href'].replace('/online/', '')
         news_pool['area'] = pool_html[0].a.text
@@ -41,19 +43,23 @@ class ScraperNews:
                 #     f.write(requests.get(lnk).content)
                 # lnk = re.findall('[\w\-\_]+\.\w{2,5}$', lnk)
                 # news_pool['img'] = lnk[0]   # os.path.dirname(os.path.abspath(__file__)) + '\\' +
-            return news_pool
+                # print(news_pool)
+        return news_pool
 
     def insert_to_base(self, news):
-        pool['date'] = f"'{str(date_now)}'"
-        pool['href'] = f"'{str(news['href'])}'"
-        pool['area'] = f"'{str(news['area'])}'"
-        pool['title'] = f"'{str(news['title'])}'"
-        pool['img'] = f"'{'' + str(news['img'])}'"
-        base['news'] = pool
-        SqlDataBase(base=db, request=base).insert()
+        if len(news) > 3:
+            pool['date'] = f"'{str(date_now)}'"
+            pool['href'] = f"'{str(news['href'])}'"
+            pool['area'] = f"'{str(news['area'])}'"
+            pool['title'] = f"'{str(news['title'])}'"
+            pool['img'] = f"'{'' + str(news['img'])}'"
+            base['news'] = pool
+            SqlDataBase(base=db, request=base).insert()
+        else:
+            print('News exists')
 
     def run(self, url):
-        if self.kp_ru(url):
+        if 'kp.ru' in url:
             self.insert_to_base(self.kp_ru(url))
 
 
