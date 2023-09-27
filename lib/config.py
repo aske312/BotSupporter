@@ -64,10 +64,9 @@ class SqlDataBase:
             cur.close()
             return arg
         except (Exception, psycopg2.DatabaseError) as error:
-            print(f'WARN: {error}')
+            pass    #  (f'WARN: {error}')
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection closed.')
-
+                # print('Database connection closed.')
 
