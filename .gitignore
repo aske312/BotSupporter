@@ -1,2 +1,4 @@
-/bin/*
+*/bin/*
+../venv/
 */config.ini
+*__pycache__*
