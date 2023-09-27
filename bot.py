@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import random
+import string
 import telebot
 import requests
 from telebot.types import *
-from os.path import basename
 from datetime import datetime
 from lib.config import config, SqlDataBase
 
@@ -39,8 +40,16 @@ def keyboard_line(key):
         markup = InlineKeyboardMarkup()
         markup.row(left_button, ok_button, right_button)
         markup.row(back_menu_button)
-
     return markup
+
+
+def get_img(url_img):
+    letters = string.ascii_lowercase
+    new_name = ''.join(random.choice(letters) for i in range(5)) + '.png'
+    img_url = requests.get(url_img).content
+    with open(new_name, 'wb') as handler:
+        handler.write(img_url)
+    return new_name
 
 
 def start_chat_tg(message):
@@ -82,11 +91,14 @@ def setting(message):
 def news(message):
     sql = '''SELECT * FROM news ORDER BY date DESC LIMIT 1'''
     result = SqlDataBase(base=db, request=sql).raw()[0]
+    _message = result['title'] + '\n' + result['description']
+    img = get_img(result['img_url'])
     bot.send_photo(message.chat.id,
-                   photo=requests.get(result['img']).content,
-                   caption=result['title'],
+                   photo=open(img, 'rb'),
+                   caption=_message,
                    reply_markup=keyboard_line('band'))
     new_event(message.chat, event='news_event')
+    os.remove(img)
 
 
 @bot.message_handler(commands=['calendar'])

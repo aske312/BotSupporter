@@ -2,7 +2,6 @@
 
 import psycopg2
 from psycopg2 import extras
-# from itertools import *
 from configparser import ConfigParser
 
 
